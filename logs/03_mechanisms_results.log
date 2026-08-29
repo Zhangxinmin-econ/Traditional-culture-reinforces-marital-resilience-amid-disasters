@@ -1,0 +1,640 @@
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  D:/论文文件夹/自然灾害与婚姻/提交_复现包/logs/03_mechanisms_results.log
+  log type:  text
+ opened on:  29 Aug 2026, 12:48:45
+
+. 
+. *--------------------------------------------------------------
+. * S9  CFPS 收入
+. *--------------------------------------------------------------
+. use "${d_cfps}/家庭个人收入subsample.dta", clear
+
+. capture drop tp
+
+. generate double tp = treat_50km * post_50km
+
+. reghdfe lnpersonincome tp $cv if lnpersonincome > 6.9, absorb(countyid year)
+(MWFE estimator converged in 6 iterations)
+
+HDFE Linear regression                            Number of obs   =      5,507
+Absorbing 2 HDFE groups                           F(   5,   5396) =       8.74
+                                                  Prob > F        =     0.0000
+                                                  R-squared       =     0.4597
+                                                  Adj R-squared   =     0.4487
+                                                  Within R-sq.    =     0.0080
+                                                  Root MSE        =     0.7892
+
+--------------------------------------------------------------------------------
+lnpersonincome | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+            tp |  -.3009069   .1533672    -1.96   0.050    -.6015686   -.0002451
+industry_ratio |   .0120936    .007063     1.71   0.087    -.0017528    .0259399
+    log_retail |   .7857893   .1876055     4.19   0.000     .4180068    1.153572
+      log_beds |  -.0623205   .1452758    -0.43   0.668    -.3471198    .2224788
+          pm25 |  -.0390067   .0075926    -5.14   0.000    -.0538913   -.0241221
+         _cons |   1.595844   2.312262     0.69   0.490    -2.937124    6.128812
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+    countyid |       102           0         102     |
+        year |         5           1           4     |
+-----------------------------------------------------+
+
+. post_est, label("S9_cfps_personal_income") coef(tp)
+RESULT|S9_cfps_personal_income|b=   -0.300907|se=    0.153367|p=  0.049814|N=        5507|r2=  0.459668
+
+. 
+. use "${d_cfps}/家庭收入subsample.dta", clear
+
+. capture drop tp
+
+. generate double tp = treat_50km * post_50km
+
+. reghdfe lnfamilyincome tp $cv if lnfamilyincome > 7.7200, absorb(countyid year)
+(MWFE estimator converged in 6 iterations)
+
+HDFE Linear regression                            Number of obs   =     17,309
+Absorbing 2 HDFE groups                           F(   5,  17194) =       4.85
+                                                  Prob > F        =     0.0002
+                                                  R-squared       =     0.2137
+                                                  Adj R-squared   =     0.2085
+                                                  Within R-sq.    =     0.0014
+                                                  Root MSE        =     0.8725
+
+--------------------------------------------------------------------------------
+lnfamilyincome | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+            tp |  -.2172411   .0832297    -2.61   0.009    -.3803798   -.0541023
+industry_ratio |   .0043843   .0036629     1.20   0.231    -.0027955     .011564
+    log_retail |  -.0722513   .0621166    -1.16   0.245    -.1940062    .0495036
+      log_beds |   .1270114    .053628     2.37   0.018     .0218951    .2321277
+          pm25 |  -.0084217   .0027435    -3.07   0.002    -.0137993   -.0030442
+         _cons |   10.51965   .8588122    12.25   0.000     8.836288    12.20301
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+    countyid |       106           0         106     |
+        year |         5           1           4     |
+-----------------------------------------------------+
+
+. post_est, label("S9_cfps_household_income") coef(tp)
+RESULT|S9_cfps_household_income|b=   -0.217241|se=    0.083230|p=  0.009058|N=       17309|r2=  0.213688
+
+. 
+. *--------------------------------------------------------------
+. * S6  CFPS 性别压力与人口异质性（logit）
+. *--------------------------------------------------------------
+. use "${d_cfps}/性别压力 .dta", clear
+
+. capture drop tp
+
+. generate double tp = treat_50km * post_50km
+
+. logit pressure_binary tp $cv
+
+Iteration 0:  Log likelihood = -1001.9134  
+Iteration 1:  Log likelihood = -895.64894  
+Iteration 2:  Log likelihood = -892.45495  
+Iteration 3:  Log likelihood = -892.44532  
+Iteration 4:  Log likelihood = -892.44532  
+
+Logistic regression                                     Number of obs =  1,676
+                                                        LR chi2(5)    = 218.94
+                                                        Prob > chi2   = 0.0000
+Log likelihood = -892.44532                             Pseudo R2     = 0.1093
+
+---------------------------------------------------------------------------------
+pressure_binary | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
+----------------+----------------------------------------------------------------
+             tp |  -1.455428   .1294784   -11.24   0.000    -1.709202   -1.201655
+ industry_ratio |  -.0408483   .0147375    -2.77   0.006    -.0697334   -.0119633
+     log_retail |   .2002532   .0729747     2.74   0.006     .0572255    .3432809
+       log_beds |  -.6323198   .1318906    -4.79   0.000    -.8908207   -.3738189
+           pm25 |  -.0361729   .0041259    -8.77   0.000    -.0442596   -.0280862
+          _cons |   5.225371   .5274428     9.91   0.000     4.191602     6.25914
+---------------------------------------------------------------------------------
+
+. post_est, label("S6_cfps_pressure_binary") coef(tp)
+RESULT|S6_cfps_pressure_binary|b=   -1.455428|se=    0.129478|p=  0.000000|N=        1676|r2=         .
+
+. 
+. use "${d_cfps}/35和小孩1.dta", clear
+
+. capture drop tp child_dummy
+
+. generate double tp = treat_50km * post_50km
+
+. generate byte child_dummy = cond(missing(child_age), 0, child_age > 0)
+
+. logit divorced tp $cv if adult_age <  35
+
+Iteration 0:  Log likelihood = -64.810548  
+Iteration 1:  Log likelihood = -61.823145  
+Iteration 2:  Log likelihood = -59.340162  
+Iteration 3:  Log likelihood = -59.336425  
+Iteration 4:  Log likelihood = -59.336423  
+
+Logistic regression                                     Number of obs =  2,406
+                                                        LR chi2(5)    =  10.95
+                                                        Prob > chi2   = 0.0524
+Log likelihood = -59.336423                             Pseudo R2     = 0.0845
+
+--------------------------------------------------------------------------------
+      divorced | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+            tp |   1.837861   .7162627     2.57   0.010     .4340117     3.24171
+industry_ratio |  -.0107869   .1077897    -0.10   0.920    -.2220508     .200477
+    log_retail |   .7129089   .3137981     2.27   0.023     .0978759    1.327942
+      log_beds |  -.9304067   .5384876    -1.73   0.084    -1.985823    .1250096
+          pm25 |  -.0098101   .0191257    -0.51   0.608    -.0472958    .0276755
+         _cons |  -8.332171   2.526368    -3.30   0.001    -13.28376   -3.380581
+--------------------------------------------------------------------------------
+
+. post_est, label("S6_cfps_age_under35") coef(tp)
+RESULT|S6_cfps_age_under35|b=    1.837861|se=    0.716263|p=  0.010291|N=        2406|r2=         .
+
+. logit divorced tp $cv if adult_age >= 35
+
+Iteration 0:  Log likelihood = -1056.7664  
+Iteration 1:  Log likelihood = -1051.1595  
+Iteration 2:  Log likelihood = -1050.3724  
+Iteration 3:  Log likelihood = -1050.3697  
+Iteration 4:  Log likelihood = -1050.3697  
+
+Logistic regression                                     Number of obs = 18,291
+                                                        LR chi2(5)    =  12.79
+                                                        Prob > chi2   = 0.0254
+Log likelihood = -1050.3697                             Pseudo R2     = 0.0061
+
+--------------------------------------------------------------------------------
+      divorced | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+            tp |   .1755236   .1521748     1.15   0.249    -.1227335    .4737808
+industry_ratio |   .0319681   .0126752     2.52   0.012     .0071251     .056811
+    log_retail |   .1101083    .087153     1.26   0.206    -.0607084     .280925
+      log_beds |  -.0416985   .1400203    -0.30   0.766    -.3161332    .2327363
+          pm25 |    -.00818   .0049237    -1.66   0.097    -.0178303    .0014704
+         _cons |  -5.393546   .6740181    -8.00   0.000    -6.714597   -4.072495
+--------------------------------------------------------------------------------
+
+. post_est, label("S6_cfps_age_35plus") coef(tp)
+RESULT|S6_cfps_age_35plus|b=    0.175524|se=    0.152175|p=  0.248732|N=       18291|r2=         .
+
+. logit divorced tp $cv if child_dummy == 0
+
+Iteration 0:  Log likelihood = -448.43358  
+Iteration 1:  Log likelihood = -440.64469  
+Iteration 2:  Log likelihood = -438.55694  
+Iteration 3:  Log likelihood = -438.53648  
+Iteration 4:  Log likelihood = -438.53647  
+
+Logistic regression                                     Number of obs =  7,195
+                                                        LR chi2(5)    =  19.79
+                                                        Prob > chi2   = 0.0014
+Log likelihood = -438.53647                             Pseudo R2     = 0.0221
+
+--------------------------------------------------------------------------------
+      divorced | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+            tp |   .6303123   .2319835     2.72   0.007     .1756331    1.084992
+industry_ratio |   .0704252   .0171101     4.12   0.000     .0368899    .1039604
+    log_retail |   .1188996   .1301721     0.91   0.361     -.136233    .3740322
+      log_beds |  -.3696914   .2181413    -1.69   0.090    -.7972405    .0578577
+          pm25 |  -.0022906   .0066958    -0.34   0.732    -.0154141    .0108329
+         _cons |  -3.547196   1.027247    -3.45   0.001    -5.560563   -1.533829
+--------------------------------------------------------------------------------
+
+. post_est, label("S6_cfps_no_children") coef(tp)
+RESULT|S6_cfps_no_children|b=    0.630312|se=    0.231983|p=  0.006587|N=        7195|r2=         .
+
+. logit divorced tp $cv if child_dummy == 1
+
+Iteration 0:  Log likelihood = -676.79206  
+Iteration 1:  Log likelihood = -672.27376  
+Iteration 2:  Log likelihood = -672.11482  
+Iteration 3:  Log likelihood = -672.11394  
+Iteration 4:  Log likelihood = -672.11394  
+
+Logistic regression                                     Number of obs = 13,502
+                                                        LR chi2(5)    =   9.36
+                                                        Prob > chi2   = 0.0957
+Log likelihood = -672.11394                             Pseudo R2     = 0.0069
+
+--------------------------------------------------------------------------------
+      divorced | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+            tp |   .0615593   .1978764     0.31   0.756    -.3262714    .4493899
+industry_ratio |   .0010921   .0206959     0.05   0.958    -.0394712    .0416554
+    log_retail |   .1823241   .1150924     1.58   0.113    -.0432528     .407901
+      log_beds |   .0651793   .1738812     0.37   0.708    -.2756216    .4059801
+          pm25 |   -.013561   .0065258    -2.08   0.038    -.0263514   -.0007707
+         _cons |  -6.849944   .9425347    -7.27   0.000    -8.697278    -5.00261
+--------------------------------------------------------------------------------
+
+. post_est, label("S6_cfps_with_children") coef(tp)
+RESULT|S6_cfps_with_children|b=    0.061559|se=    0.197876|p=  0.755725|N=       13502|r2=         .
+
+. 
+. *--------------------------------------------------------------
+. * S10-S12  CHARLS 心理 / 认知 / 生理
+. *--------------------------------------------------------------
+. foreach item in "cesd10" "satlife" "hope" "total_cognition" "memeory" ///
+>                 "executive" "sleep" "bl_crp" "pulse" "systo" "diasto" {
+  2.     local fname "`item' .dta"
+  3.     if "`item'" == "pulse" local fname "pulse.dta"
+  4.     use "${d_charls}/`fname'", clear
+  5.     capture drop tp
+  6.     generate double tp = treat_50km * post_50km
+  7.     if "`item'" == "sleep" {
+  8.         reghdfe sleep tp $cv_charls if sleep > 6, absorb(city year) vce(cluster city)
+  9.     }
+ 10.     else if "`item'" == "bl_crp" {
+ 11.         reghdfe bl_crp tp $cv_charls if bl_crp >= 0.1 & bl_crp <= 200, ///
+>             absorb(city year) vce(cluster city)
+ 12.     }
+ 13.     else {
+ 14.         reghdfe `item' tp $cv_charls, absorb(city year) vce(cluster city)
+ 15.     }
+ 16.     post_est, label("S10_12_charls_`item'") coef(tp)
+ 17. }
+(MWFE estimator converged in 5 iterations)
+
+HDFE Linear regression                            Number of obs   =     63,355
+Absorbing 2 HDFE groups                           F(   6,    114) =       2.26
+Statistics robust to heteroskedasticity           Prob > F        =     0.0423
+                                                  R-squared       =     0.0754
+                                                  Adj R-squared   =     0.0736
+                                                  Within R-sq.    =     0.0004
+Number of clusters (city)    =        115         Root MSE        =     5.8887
+
+                                 (Std. err. adjusted for 115 clusters in city)
+------------------------------------------------------------------------------
+             |               Robust
+      cesd10 | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+          tp |   .3794362   .2167383     1.75   0.083    -.0499208    .8087931
+        lnis |    -.02862   .2702177    -0.11   0.916    -.5639191    .5066792
+      lntfly |  -1.099694   .3858751    -2.85   0.005     -1.86411   -.3352788
+         fbr |  -.2422444    1.34942    -0.18   0.858    -2.915436    2.430947
+       lnfbr |   .0972382   .5216162     0.19   0.852    -.9360794    1.130556
+       lnrst |   .1694644    .126972     1.33   0.185    -.0820662     .420995
+       _cons |   23.52253   6.924543     3.40   0.001      9.80506    37.23999
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        city |       115         115           0    *|
+        year |         5           1           4     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|S10_12_charls_cesd10|b=    0.379436|se=    0.216738|p=  0.082694|N=       63355|r2=  0.075450
+(MWFE estimator converged in 5 iterations)
+
+HDFE Linear regression                            Number of obs   =     61,520
+Absorbing 2 HDFE groups                           F(   6,    114) =       3.34
+Statistics robust to heteroskedasticity           Prob > F        =     0.0045
+                                                  R-squared       =     0.0597
+                                                  Adj R-squared   =     0.0578
+                                                  Within R-sq.    =     0.0007
+Number of clusters (city)    =        115         Root MSE        =     0.7330
+
+                                 (Std. err. adjusted for 115 clusters in city)
+------------------------------------------------------------------------------
+             |               Robust
+     satlife | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+          tp |  -.0623672   .0236051    -2.64   0.009    -.1091287   -.0156057
+        lnis |   .0495375   .0426992     1.16   0.248    -.0350493    .1341243
+      lntfly |    .054267   .0386271     1.40   0.163    -.0222529    .1307869
+         fbr |   .6549104   .1901275     3.44   0.001     .2782694    1.031551
+       lnfbr |  -.3425885   .0952935    -3.60   0.000    -.5313642   -.1538129
+       lnrst |  -.0205895   .0151764    -1.36   0.178    -.0506538    .0094748
+       _cons |   2.069711   .6912921     2.99   0.003     .7002664    3.439155
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        city |       115         115           0    *|
+        year |         5           1           4     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|S10_12_charls_satlife|b=   -0.062367|se=    0.023605|p=  0.009397|N=       61520|r2=  0.059740
+(MWFE estimator converged in 5 iterations)
+
+HDFE Linear regression                            Number of obs   =     61,091
+Absorbing 2 HDFE groups                           F(   6,    114) =       2.70
+Statistics robust to heteroskedasticity           Prob > F        =     0.0173
+                                                  R-squared       =     0.0399
+                                                  Adj R-squared   =     0.0380
+                                                  Within R-sq.    =     0.0007
+Number of clusters (city)    =        115         Root MSE        =     1.3101
+
+                                 (Std. err. adjusted for 115 clusters in city)
+------------------------------------------------------------------------------
+             |               Robust
+        hope | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+          tp |  -.1405236   .0536422    -2.62   0.010    -.2467885   -.0342588
+        lnis |  -.0007667   .0935764    -0.01   0.993    -.1861408    .1846074
+      lntfly |    .070011   .1188718     0.59   0.557    -.1654731    .3054951
+         fbr |   1.024762    .423631     2.42   0.017     .1855527    1.863972
+       lnfbr |  -.2348771   .1869674    -1.26   0.212     -.605258    .1355038
+       lnrst |   .0318574   .0804397     0.40   0.693    -.1274929    .1912078
+       _cons |    .418099   2.388048     0.18   0.861    -4.312605    5.148803
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        city |       115         115           0    *|
+        year |         5           1           4     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|S10_12_charls_hope|b=   -0.140524|se=    0.053642|p=  0.010000|N=       61091|r2=  0.039927
+(MWFE estimator converged in 5 iterations)
+
+HDFE Linear regression                            Number of obs   =     50,124
+Absorbing 2 HDFE groups                           F(   6,    114) =       3.73
+Statistics robust to heteroskedasticity           Prob > F        =     0.0020
+                                                  R-squared       =     0.0998
+                                                  Adj R-squared   =     0.0975
+                                                  Within R-sq.    =     0.0015
+Number of clusters (city)    =        115         Root MSE        =     3.3188
+
+                                 (Std. err. adjusted for 115 clusters in city)
+------------------------------------------------------------------------------
+             |               Robust
+total_cogn~n | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+          tp |  -.5119565   .1952417    -2.62   0.010    -.8987289   -.1251842
+        lnis |  -.2046248   .2554397    -0.80   0.425    -.7106489    .3013993
+      lntfly |   1.052759   .2771227     3.80   0.000     .5037815    1.601737
+         fbr |   .7600078    1.19379     0.64   0.526    -1.604881    3.124896
+       lnfbr |   .1045428   .5442109     0.19   0.848    -.9735348     1.18262
+       lnrst |  -.2074764    .125111    -1.66   0.100    -.4553202    .0403674
+       _cons |  -1.830924   4.919466    -0.37   0.710    -11.57635    7.914502
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        city |       115         115           0    *|
+        year |         5           1           4     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|S10_12_charls_total_cognition|b=   -0.511957|se=    0.195242|p=  0.009931|N=       50124|r2=  0.099776
+(MWFE estimator converged in 5 iterations)
+
+HDFE Linear regression                            Number of obs   =     57,376
+Absorbing 2 HDFE groups                           F(   6,    114) =       2.40
+Statistics robust to heteroskedasticity           Prob > F        =     0.0323
+                                                  R-squared       =     0.0837
+                                                  Adj R-squared   =     0.0817
+                                                  Within R-sq.    =     0.0013
+Number of clusters (city)    =        115         Root MSE        =     1.7679
+
+                                 (Std. err. adjusted for 115 clusters in city)
+------------------------------------------------------------------------------
+             |               Robust
+     memeory | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+          tp |  -.2804388   .1069889    -2.62   0.010    -.4923831   -.0684945
+        lnis |  -.2814166   .1656617    -1.70   0.092    -.6095911     .046758
+      lntfly |   .2575595   .1817238     1.42   0.159     -.102434     .617553
+         fbr |  -.5215526   .8460161    -0.62   0.539    -2.197504    1.154399
+       lnfbr |   .0646519   .3840507     0.17   0.867    -.6961495    .8254533
+       lnrst |  -.0832239    .088956    -0.94   0.351     -.259445    .0929973
+       _cons |   1.189298   3.407833     0.35   0.728    -5.561594     7.94019
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        city |       115         115           0    *|
+        year |         5           1           4     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|S10_12_charls_memeory|b=   -0.280439|se=    0.106989|p=  0.009957|N=       57376|r2=  0.083703
+(MWFE estimator converged in 5 iterations)
+
+HDFE Linear regression                            Number of obs   =     52,498
+Absorbing 2 HDFE groups                           F(   6,    114) =       4.71
+Statistics robust to heteroskedasticity           Prob > F        =     0.0003
+                                                  R-squared       =     0.0810
+                                                  Adj R-squared   =     0.0788
+                                                  Within R-sq.    =     0.0013
+Number of clusters (city)    =        115         Root MSE        =     2.2864
+
+                                 (Std. err. adjusted for 115 clusters in city)
+------------------------------------------------------------------------------
+             |               Robust
+   executive | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+          tp |  -.2919528   .1112231    -2.62   0.010    -.5122848   -.0716208
+        lnis |  -.1178929   .1643508    -0.72   0.475    -.4434705    .2076847
+      lntfly |   .5720491    .165528     3.46   0.001     .2441394    .8999587
+         fbr |   .8038936    .685839     1.17   0.244    -.5547482    2.162535
+       lnfbr |   .0725601    .309624     0.23   0.815    -.5408027     .685923
+       lnrst |  -.0279398   .0550215    -0.51   0.613    -.1369369    .0810573
+       _cons |  -.7895695   3.151184    -0.25   0.803    -7.032041    5.452902
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        city |       115         115           0    *|
+        year |         5           1           4     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|S10_12_charls_executive|b=   -0.291953|se=    0.111223|p=  0.009855|N=       52498|r2=  0.081024
+(MWFE estimator converged in 6 iterations)
+
+HDFE Linear regression                            Number of obs   =     28,700
+Absorbing 2 HDFE groups                           F(   6,    114) =       3.01
+Statistics robust to heteroskedasticity           Prob > F        =     0.0090
+                                                  R-squared       =     0.0352
+                                                  Adj R-squared   =     0.0310
+                                                  Within R-sq.    =     0.0010
+Number of clusters (city)    =        115         Root MSE        =     0.9149
+
+                                 (Std. err. adjusted for 115 clusters in city)
+------------------------------------------------------------------------------
+             |               Robust
+       sleep | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+          tp |  -.1443779   .0546196    -2.64   0.009    -.2525788   -.0361769
+        lnis |   -.109848    .065579    -1.68   0.097    -.2397594    .0200634
+      lntfly |  -.1617698   .0764665    -2.12   0.037    -.3132494   -.0102901
+         fbr |  -.1643968   .2971873    -0.55   0.581    -.7531226    .4243291
+       lnfbr |   .1352667   .1248488     1.08   0.281    -.1120578    .3825912
+       lnrst |   .0542957    .018889     2.87   0.005     .0168767    .0917147
+       _cons |    9.93746   1.305612     7.61   0.000     7.351053    12.52387
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        city |       115         115           0    *|
+        year |         5           1           4     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|S10_12_charls_sleep|b=   -0.144378|se=    0.054620|p=  0.009365|N=       28700|r2=  0.035153
+(MWFE estimator converged in 4 iterations)
+
+HDFE Linear regression                            Number of obs   =     22,669
+Absorbing 2 HDFE groups                           F(   6,    114) =       5.19
+Statistics robust to heteroskedasticity           Prob > F        =     0.0001
+                                                  R-squared       =     0.0108
+                                                  Adj R-squared   =     0.0055
+                                                  Within R-sq.    =     0.0007
+Number of clusters (city)    =        115         Root MSE        =     5.4603
+
+                                 (Std. err. adjusted for 115 clusters in city)
+------------------------------------------------------------------------------
+             |               Robust
+      bl_crp | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+          tp |   .6496826   .2123087     3.06   0.003     .2291008    1.070264
+        lnis |   .8851879   .4498331     1.97   0.052     -.005928    1.776304
+      lntfly |   -.165551   .5077864    -0.33   0.745    -1.171472    .8403699
+         fbr |    -5.0769   2.205295    -2.30   0.023    -9.445572   -.7082283
+       lnfbr |   2.435371   1.151749     2.11   0.037     .1537657    4.716976
+       lnrst |   -.353039   .1277489    -2.76   0.007    -.6061086   -.0999694
+       _cons |   14.74205   9.588484     1.54   0.127    -4.252661    33.73676
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        city |       115         115           0    *|
+        year |         3           1           2     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|S10_12_charls_bl_crp|b=    0.649683|se=    0.212309|p=  0.002759|N=       22669|r2=  0.010823
+(MWFE estimator converged in 5 iterations)
+
+HDFE Linear regression                            Number of obs   =     38,616
+Absorbing 2 HDFE groups                           F(   6,    114) =       3.76
+Statistics robust to heteroskedasticity           Prob > F        =     0.0019
+                                                  R-squared       =     0.0231
+                                                  Adj R-squared   =     0.0200
+                                                  Within R-sq.    =     0.0010
+Number of clusters (city)    =        115         Root MSE        =    10.3754
+
+                                 (Std. err. adjusted for 115 clusters in city)
+------------------------------------------------------------------------------
+             |               Robust
+       pulse | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+          tp |   1.777515   .8560131     2.08   0.040     .0817595     3.47327
+        lnis |    1.74298   .8384395     2.08   0.040     .0820377    3.403922
+      lntfly |  -1.848003   1.165193    -1.59   0.116    -4.156241    .4602346
+         fbr |   3.186226   5.145891     0.62   0.537    -7.007745     13.3802
+       lnfbr |  -3.441427   2.490839    -1.38   0.170    -8.375761    1.492906
+       lnrst |  -.1415764   .2021853    -0.70   0.485    -.5421039    .2589511
+       _cons |   100.0575   20.64079     4.85   0.000     59.16826    140.9467
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        city |       115         115           0    *|
+        year |         5           1           4     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|S10_12_charls_pulse|b=    1.777515|se=    0.856013|p=  0.040095|N=       38616|r2=  0.023148
+(MWFE estimator converged in 5 iterations)
+
+HDFE Linear regression                            Number of obs   =     38,328
+Absorbing 2 HDFE groups                           F(   6,    114) =       6.16
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.0373
+                                                  Adj R-squared   =     0.0342
+                                                  Within R-sq.    =     0.0013
+Number of clusters (city)    =        115         Root MSE        =    19.8066
+
+                                 (Std. err. adjusted for 115 clusters in city)
+------------------------------------------------------------------------------
+             |               Robust
+       systo | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+          tp |   2.718448   .9887948     2.75   0.007     .7596536    4.677243
+        lnis |  -1.090931   2.095371    -0.52   0.604    -5.241844    3.059982
+      lntfly |   1.679519   3.016061     0.56   0.579    -4.295274    7.654312
+         fbr |   -20.3324   8.422265    -2.41   0.017    -37.01684   -3.647957
+       lnfbr |   14.43433   3.788317     3.81   0.000     6.929702    21.93896
+       lnrst |  -1.933984   .7344602    -2.63   0.010    -3.388944   -.4790239
+       _cons |   151.3457   54.62831     2.77   0.007     43.12743     259.564
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        city |       115         115           0    *|
+        year |         5           1           4     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|S10_12_charls_systo|b=    2.718448|se=    0.988795|p=  0.006947|N=       38328|r2=  0.037303
+(MWFE estimator converged in 5 iterations)
+
+HDFE Linear regression                            Number of obs   =     36,967
+Absorbing 2 HDFE groups                           F(   6,    114) =       9.74
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.0611
+                                                  Adj R-squared   =     0.0579
+                                                  Within R-sq.    =     0.0022
+Number of clusters (city)    =        115         Root MSE        =    10.8691
+
+                                 (Std. err. adjusted for 115 clusters in city)
+------------------------------------------------------------------------------
+             |               Robust
+      diasto | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+          tp |    2.38736   .9042851     2.64   0.009     .5959785    4.178742
+        lnis |   .9486478   1.310883     0.72   0.471    -1.648201    3.545496
+      lntfly |   1.406978   2.071845     0.68   0.498     -2.69733    5.511286
+         fbr |  -21.98453   6.368102    -3.45   0.001    -34.59969   -9.369367
+       lnfbr |   11.43095   2.879919     3.97   0.000     5.725853    17.13605
+       lnrst |  -.9472712   .2744664    -3.45   0.001    -1.490987   -.4035553
+       _cons |   84.75023   37.29946     2.27   0.025     10.86028    158.6402
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        city |       115         115           0    *|
+        year |         5           1           4     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|S10_12_charls_diasto|b=    2.387360|se=    0.904285|p=  0.009450|N=       36967|r2=  0.061068
+
+. 
+. display as result "MECH_AUDIT_COMPLETE"
+MECH_AUDIT_COMPLETE
+
+. log close
+      name:  <unnamed>
+       log:  D:/论文文件夹/自然灾害与婚姻/提交_复现包/logs/03_mechanisms_results.log
+  log type:  text
+ closed on:  29 Aug 2026, 12:48:49
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

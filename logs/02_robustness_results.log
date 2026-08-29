@@ -1,0 +1,505 @@
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  D:/论文文件夹/自然灾害与婚姻/提交_复现包/logs/02_robustness_results.log
+  log type:  text
+ opened on:  29 Aug 2026, 12:48:43
+
+. 
+. use "${f_base}", clear
+
+. bysort county_code: generate n_years = _N
+
+. drop if n_years == 1
+(0 observations deleted)
+
+. drop n_years
+
+. 
+. *--------------------------------------------------------------
+. * Table S4 第4、5列：替换灾害暴露半径
+. *--------------------------------------------------------------
+. capture drop tp30 tp70
+
+. generate double tp30 = treat_30km * post_30km
+
+. generate double tp70 = treat_70km * post_70km
+
+. 
+. reghdfe divorce_rate tp30 $cv, absorb(year county_code) vce(cluster county_code)
+(MWFE estimator converged in 9 iterations)
+
+HDFE Linear regression                            Number of obs   =     12,231
+Absorbing 2 HDFE groups                           F(   5,   2036) =       5.28
+Statistics robust to heteroskedasticity           Prob > F        =     0.0001
+                                                  R-squared       =     0.5395
+                                                  Adj R-squared   =     0.4463
+                                                  Within R-sq.    =     0.0032
+Number of clusters (county_code) =      2,037     Root MSE        =     1.4319
+
+                          (Std. err. adjusted for 2,037 clusters in county_code)
+--------------------------------------------------------------------------------
+               |               Robust
+  divorce_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+          tp30 |     .27065   .1026311     2.64   0.008      .069377     .471923
+industry_ratio |  -.0754845   .0268813    -2.81   0.005    -.1282021   -.0227668
+    log_retail |  -.1922688   .0637723    -3.01   0.003    -.3173345   -.0672031
+      log_beds |  -.1143205   .0850977    -1.34   0.179     -.281208    .0525671
+          pm25 |    .006812     .00415     1.64   0.101    -.0013266    .0149507
+         _cons |   4.972758   .9487468     5.24   0.000     3.112143    6.833374
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        19           1          18     |
+ county_code |      2037        2037           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. post_est, label("S4c4_radius_30km") coef(tp30)
+RESULT|S4c4_radius_30km|b=    0.270650|se=    0.102631|p=  0.008425|N=       12231|r2=  0.539490
+
+. reghdfe divorce_rate tp70 $cv, absorb(year county_code) vce(cluster county_code)
+(MWFE estimator converged in 9 iterations)
+
+HDFE Linear regression                            Number of obs   =     12,231
+Absorbing 2 HDFE groups                           F(   5,   2036) =       6.91
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.5398
+                                                  Adj R-squared   =     0.4466
+                                                  Within R-sq.    =     0.0038
+Number of clusters (county_code) =      2,037     Root MSE        =     1.4315
+
+                          (Std. err. adjusted for 2,037 clusters in county_code)
+--------------------------------------------------------------------------------
+               |               Robust
+  divorce_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+          tp70 |   .2819947   .0749159     3.76   0.000     .1350749    .4289145
+industry_ratio |  -.0763237   .0269821    -2.83   0.005    -.1292392   -.0234083
+    log_retail |  -.1952547    .063893    -3.06   0.002    -.3205572   -.0699522
+      log_beds |  -.1143137   .0851033    -1.34   0.179    -.2812124     .052585
+          pm25 |   .0060511   .0041617     1.45   0.146    -.0021105    .0142127
+         _cons |    4.98627   .9503815     5.25   0.000     3.122448    6.850092
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        19           1          18     |
+ county_code |      2037        2037           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. post_est, label("S4c5_radius_70km") coef(tp70)
+RESULT|S4c5_radius_70km|b=    0.281995|se=    0.074916|p=  0.000172|N=       12231|r2=  0.539765
+
+. 
+. *--------------------------------------------------------------
+. * Table S3：倾向得分匹配平衡性
+. * Table S4 第1列：PSM-DID
+. *--------------------------------------------------------------
+. logit treat_50km $cv
+
+Iteration 0:  Log likelihood = -8389.6942  
+Iteration 1:  Log likelihood = -8279.2813  
+Iteration 2:  Log likelihood = -8279.0693  
+Iteration 3:  Log likelihood = -8279.0693  
+
+Logistic regression                                     Number of obs = 12,231
+                                                        LR chi2(4)    = 221.25
+                                                        Prob > chi2   = 0.0000
+Log likelihood = -8279.0693                             Pseudo R2     = 0.0132
+
+--------------------------------------------------------------------------------
+    treat_50km | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+industry_ratio |    .014113   .0202079     0.70   0.485    -.0254938    .0537197
+    log_retail |  -.1844277   .0224113    -8.23   0.000    -.2283531   -.1405022
+      log_beds |   .5171508   .0373817    13.83   0.000     .4438841    .5904176
+          pm25 |   -.001057   .0010809    -0.98   0.328    -.0031756    .0010616
+         _cons |  -1.551602   .1690436    -9.18   0.000    -1.882921   -1.220282
+--------------------------------------------------------------------------------
+
+. capture drop pscore
+
+. predict double pscore
+(option pr assumed; Pr(treat_50km))
+
+. psmatch2 treat_50km, pscore(pscore) outcome(treat_post) neighbor(1) common caliper(0.1)
+----------------------------------------------------------------------------------------
+        Variable     Sample |    Treated     Controls   Difference         S.E.   T-stat
+----------------------------+-----------------------------------------------------------
+      treat_post  Unmatched | .578966927            0   .578966927   .005966325    97.04
+                        ATT | .578966927            0   .578966927   .006730595    86.02
+----------------------------+-----------------------------------------------------------
+Note: S.E. does not take into account that the propensity score is estimated.
+
+           | psmatch2:
+ psmatch2: |   Common
+ Treatment |  support
+assignment | On suppor |     Total
+-----------+-----------+----------
+ Untreated |     6,849 |     6,849 
+   Treated |     5,382 |     5,382 
+-----------+-----------+----------
+     Total |    12,231 |    12,231 
+
+. pstest $cv, both
+
+----------------------------------------------------------------------------------------
+                Unmatched |       Mean               %reduct |     t-test    |  V(T)/
+Variable          Matched | Treated Control    %bias  |bias| |    t    p>|t| |  V(C)
+--------------------------+----------------------------------+---------------+----------
+industry_ratio         U  | 1.0187   1.0054      1.4         |   0.78  0.434 |  0.69*
+                       M  | 1.0187   1.0527     -3.7  -155.0 |  -1.78  0.075 |  0.56*
+                          |                                  |               |
+log_retail             U  |  11.99   11.881      7.7         |   4.23  0.000 |  0.88*
+                       M  |  11.99   11.955      2.5    67.4 |   1.29  0.198 |  0.83*
+                          |                                  |               |
+log_beds               U  | 6.9503   6.7658     21.8         |  11.95  0.000 |  0.91*
+                       M  | 6.9503    6.937      1.6    92.8 |   0.83  0.409 |  0.94*
+                          |                                  |               |
+pm25                   U  | 47.569    46.91      3.5         |   1.92  0.055 |  1.00
+                       M  | 47.569   47.787     -1.2    67.1 |  -0.60  0.546 |  1.04
+                          |                                  |               |
+----------------------------------------------------------------------------------------
+* if variance ratio outside [0.95; 1.05] for U and [0.95; 1.05] for M
+
+-----------------------------------------------------------------------------------
+ Sample    | Ps R2   LR chi2   p>chi2   MeanBias   MedBias      B      R     %Var
+-----------+-----------------------------------------------------------------------
+ Unmatched | 0.013    221.25    0.000      8.6       5.6      27.1*   0.88     75
+ Matched   | 0.000      6.09    0.192      2.2       2.0       4.7    0.58     75
+-----------------------------------------------------------------------------------
+* if B>25%, R outside [0.5; 2]
+
+. reghdfe divorce_rate treat_post $cv if _weight == 1, ///
+>     absorb(year county_code) vce(cluster county_code)
+(dropped 341 singleton observations)
+(MWFE estimator converged in 9 iterations)
+
+HDFE Linear regression                            Number of obs   =      6,917
+Absorbing 2 HDFE groups                           F(   5,   1497) =       4.38
+Statistics robust to heteroskedasticity           Prob > F        =     0.0006
+                                                  R-squared       =     0.5656
+                                                  Adj R-squared   =     0.4433
+                                                  Within R-sq.    =     0.0050
+Number of clusters (county_code) =      1,498     Root MSE        =     1.4067
+
+                          (Std. err. adjusted for 1,498 clusters in county_code)
+--------------------------------------------------------------------------------
+               |               Robust
+  divorce_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+    treat_post |   .3356012   .0915097     3.67   0.000     .1561005     .515102
+industry_ratio |  -.0325243   .0691013    -0.47   0.638    -.1680701    .1030214
+    log_retail |  -.2388651   .0923301    -2.59   0.010    -.4199752   -.0577549
+      log_beds |   .0056493   .1085782     0.05   0.959    -.2073322    .2186309
+          pm25 |   .0067091   .0055342     1.21   0.226    -.0041465    .0175646
+         _cons |   4.552289   1.272641     3.58   0.000     2.055941    7.048637
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        19           1          18     |
+ county_code |      1498        1498           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. post_est, label("S4c1_psm_did") coef(treat_post)
+RESULT|S4c1_psm_did|b=    0.335601|se=    0.091510|p=  0.000254|N=        6917|r2=  0.565649
+
+. 
+. *--------------------------------------------------------------
+. * Table S4 第2、3列：地理工具变量
+. *   IV_fault    断裂带密度 × 年份
+. *   IV_geology  地质复杂度（熵）× 年份
+. *   IV_river    河网密度 × 年份
+. *--------------------------------------------------------------
+. xtset year county_code
+
+Panel variable: year (unbalanced)
+ Time variable: county_code, 900001 to 902044, but with gaps
+         Delta: 1 unit
+
+. capture drop dyear*
+
+. tabulate year, generate(dyear)
+
+       year |      Freq.     Percent        Cum.
+------------+-----------------------------------
+       2000 |      1,562       12.77       12.77
+       2001 |         75        0.61       13.38
+       2002 |        111        0.91       14.29
+       2003 |         88        0.72       15.01
+       2004 |         81        0.66       15.67
+       2005 |        191        1.56       17.23
+       2006 |        171        1.40       18.63
+       2007 |        221        1.81       20.44
+       2008 |      1,758       14.37       34.81
+       2009 |      1,753       14.33       49.15
+       2010 |      1,863       15.23       64.38
+       2011 |      1,673       13.68       78.06
+       2012 |      1,755       14.35       92.40
+       2013 |        477        3.90       96.30
+       2014 |        117        0.96       97.26
+       2015 |         92        0.75       98.01
+       2016 |         82        0.67       98.68
+       2017 |         91        0.74       99.43
+       2018 |         70        0.57      100.00
+------------+-----------------------------------
+      Total |     12,231      100.00
+
+. capture drop IV_fault IV_geology IV_river
+
+. generate double IV_fault   = fault_density      * year/10000
+
+. generate double IV_geology = geology_entropy    * year/10000
+
+. generate double IV_river   = mean_river_density * year/10000
+
+. summarize fault_density geology_entropy mean_river_density
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+fault_dens~y |     12,231    .0049215    .9609415  -1.029149   5.503479
+geology_en~y |     12,231    .1284962     .984643  -1.872796   3.527182
+mean_river~y |     12,231    .0354272    1.060283  -.8789179   12.24678
+
+. 
+. xtivreg2 divorce_rate dyear* (treat_post = IV_fault IV_geology IV_river) $cv, ///
+>     first fe endog(treat_post) savefirst savefprefix(first_)
+Warning - collinearities detected
+Vars dropped:       dyear1 dyear2 dyear3 dyear4 dyear5 dyear6 dyear7 dyear8
+                    dyear9 dyear10 dyear11 dyear12 dyear13 dyear14 dyear15
+                    dyear16 dyear17 dyear18 dyear19
+
+FIXED EFFECTS ESTIMATION
+------------------------
+Number of groups =        19                    Obs per group: min =        70
+                                                               avg =     643.7
+                                                               max =      1863
+Warning - collinearities detected
+Vars dropped:  dyear1 dyear2 dyear3 dyear4 dyear5 dyear6 dyear7 dyear8 dyear9
+               dyear10 dyear11 dyear12 dyear13 dyear14 dyear15 dyear16 dyear17
+               dyear18 dyear19
+
+Stored estimation results
+-------------------------
+-------------------------------------------------------
+             |           Dependent  Number of        
+        Name | Command    variable     param.  Title 
+-------------+-----------------------------------------
+first_trea~t | xtivreg2  treat_post        26  
+-------------------------------------------------------
+
+First-stage regressions
+-----------------------
+
+
+FIXED EFFECTS ESTIMATION
+------------------------
+Number of groups =        19                    Obs per group: min =        70
+                                                               avg =     643.7
+                                                               max =      1863
+
+First-stage regression of treat_post:
+
+Statistics consistent for homoskedasticity only
+Number of obs =                  12231
+--------------------------------------------------------------------------------
+    treat_post | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+      IV_fault |   .0527753   .0223561     2.36   0.018     .0089538    .0965968
+    IV_geology |   .0531459   .0260353     2.04   0.041     .0021125    .1041793
+      IV_river |   .0980216   .0194154     5.05   0.000     .0599644    .1360789
+        dyear1 |          0  (omitted)
+        dyear2 |          0  (omitted)
+        dyear3 |          0  (omitted)
+        dyear4 |          0  (omitted)
+        dyear5 |          0  (omitted)
+        dyear6 |          0  (omitted)
+        dyear7 |          0  (omitted)
+        dyear8 |          0  (omitted)
+        dyear9 |          0  (omitted)
+       dyear10 |          0  (omitted)
+       dyear11 |          0  (omitted)
+       dyear12 |          0  (omitted)
+       dyear13 |          0  (omitted)
+       dyear14 |          0  (omitted)
+       dyear15 |          0  (omitted)
+       dyear16 |          0  (omitted)
+       dyear17 |          0  (omitted)
+       dyear18 |          0  (omitted)
+       dyear19 |          0  (omitted)
+industry_ratio |  -.0091254   .0042691    -2.14   0.033    -.0174935   -.0007572
+    log_retail |  -.0353185   .0053914    -6.55   0.000    -.0458865   -.0247504
+      log_beds |   .1139491   .0078379    14.54   0.000     .0985855    .1293127
+          pm25 |  -.0005878   .0002834    -2.07   0.038    -.0011433   -.0000322
+--------------------------------------------------------------------------------
+F test of excluded instruments:
+  F(  3, 12205) =    12.23
+  Prob > F      =   0.0000
+Sanderson-Windmeijer multivariate F test of excluded instruments:
+  F(  3, 12205) =    12.23
+  Prob > F      =   0.0000
+
+
+
+Summary results for first-stage regressions
+-------------------------------------------
+
+                                           (Underid)            (Weak id)
+Variable     | F(  3, 12205)  P-val | SW Chi-sq(  3) P-val | SW F(  3, 12205)
+treat_post   |      12.23    0.0000 |       36.71   0.0000 |       12.23
+
+Stock-Yogo weak ID F test critical values for single endogenous regressor:
+                                    5% maximal IV relative bias    13.91
+                                   10% maximal IV relative bias     9.08
+                                   20% maximal IV relative bias     6.46
+                                   30% maximal IV relative bias     5.39
+                                   10% maximal IV size             22.30
+                                   15% maximal IV size             12.83
+                                   20% maximal IV size              9.54
+                                   25% maximal IV size              7.80
+Source: Stock-Yogo (2005).  Reproduced by permission.
+NB: Critical values are for Sanderson-Windmeijer F statistic.
+
+Underidentification test
+Ho: matrix of reduced form coefficients has rank=K1-1 (underidentified)
+Ha: matrix has rank=K1 (identified)
+Anderson canon. corr. LM statistic       Chi-sq(3)=36.60    P-val=0.0000
+
+Weak identification test
+Ho: equation is weakly identified
+Cragg-Donald Wald F statistic                                      12.23
+
+Stock-Yogo weak ID test critical values for K1=1 and L1=3:
+                                    5% maximal IV relative bias    13.91
+                                   10% maximal IV relative bias     9.08
+                                   20% maximal IV relative bias     6.46
+                                   30% maximal IV relative bias     5.39
+                                   10% maximal IV size             22.30
+                                   15% maximal IV size             12.83
+                                   20% maximal IV size              9.54
+                                   25% maximal IV size              7.80
+Source: Stock-Yogo (2005).  Reproduced by permission.
+
+Weak-instrument-robust inference
+Tests of joint significance of endogenous regressors B1 in main equation
+Ho: B1=0 and orthogonality conditions are valid
+Anderson-Rubin Wald test           F(3,12205)=     4.99     P-val=0.0018
+Anderson-Rubin Wald test           Chi-sq(3)=     14.99     P-val=0.0018
+Stock-Wright LM S statistic        Chi-sq(3)=     14.97     P-val=0.0018
+
+Number of observations               N  =      12231
+Number of regressors                 K  =          5
+Number of endogenous regressors      K1 =          1
+Number of instruments                L  =          7
+Number of excluded instruments       L1 =          3
+
+IV (2SLS) estimation
+--------------------
+
+Estimates efficient for homoskedasticity only
+Statistics consistent for homoskedasticity only
+
+                                                      Number of obs =    12231
+                                                      F(  5, 12207) =    14.23
+                                                      Prob > F      =   0.0000
+Total (centered) SS     =  37895.06561                Centered R2   =  -0.2247
+Total (uncentered) SS   =  37895.06561                Uncentered R2 =  -0.2247
+Residual SS             =  46409.69231                Root MSE      =    1.949
+
+--------------------------------------------------------------------------------
+  divorce_rate | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+    treat_post |    2.12848   .7588544     2.80   0.005     .6411527    3.615807
+        dyear1 |          0  (omitted)
+        dyear2 |          0  (omitted)
+        dyear3 |          0  (omitted)
+        dyear4 |          0  (omitted)
+        dyear5 |          0  (omitted)
+        dyear6 |          0  (omitted)
+        dyear7 |          0  (omitted)
+        dyear8 |          0  (omitted)
+        dyear9 |          0  (omitted)
+       dyear10 |          0  (omitted)
+       dyear11 |          0  (omitted)
+       dyear12 |          0  (omitted)
+       dyear13 |          0  (omitted)
+       dyear14 |          0  (omitted)
+       dyear15 |          0  (omitted)
+       dyear16 |          0  (omitted)
+       dyear17 |          0  (omitted)
+       dyear18 |          0  (omitted)
+       dyear19 |          0  (omitted)
+industry_ratio |   .0567527   .0210661     2.69   0.007     .0154639    .0980415
+    log_retail |   .2080077    .035294     5.89   0.000     .1388327    .2771827
+      log_beds |  -.3023955   .0961655    -3.14   0.002    -.4908763   -.1139146
+          pm25 |  -.0032608   .0014451    -2.26   0.024    -.0060932   -.0004284
+--------------------------------------------------------------------------------
+Underidentification test (Anderson canon. corr. LM statistic):          36.603
+                                                   Chi-sq(3) P-val =    0.0000
+------------------------------------------------------------------------------
+Weak identification test (Cragg-Donald Wald F statistic):               12.231
+Stock-Yogo weak ID test critical values:  5% maximal IV relative bias    13.91
+                                         10% maximal IV relative bias     9.08
+                                         20% maximal IV relative bias     6.46
+                                         30% maximal IV relative bias     5.39
+                                         10% maximal IV size             22.30
+                                         15% maximal IV size             12.83
+                                         20% maximal IV size              9.54
+                                         25% maximal IV size              7.80
+Source: Stock-Yogo (2005).  Reproduced by permission.
+------------------------------------------------------------------------------
+Sargan statistic (overidentification test of all instruments):           4.277
+                                                   Chi-sq(2) P-val =    0.1179
+-endog- option:
+Endogeneity test of endogenous regressors:                               8.581
+                                                   Chi-sq(1) P-val =    0.0034
+Regressors tested:    treat_post
+------------------------------------------------------------------------------
+Instrumented:         treat_post
+Included instruments: industry_ratio log_retail log_beds pm25
+Excluded instruments: IV_fault IV_geology IV_river
+Dropped collinear:    dyear1 dyear2 dyear3 dyear4 dyear5 dyear6 dyear7 dyear8
+                      dyear9 dyear10 dyear11 dyear12 dyear13 dyear14 dyear15
+                      dyear16 dyear17 dyear18 dyear19
+------------------------------------------------------------------------------
+
+. post_est, label("S4c3_iv_second_stage") coef(treat_post)
+RESULT|S4c3_iv_second_stage|b=    2.128480|se=    0.758854|p=  0.005034|N=       12231|r2= -0.224690
+
+. display as result "IVSTAT|CraggDonaldWaldF=" %12.6f e(cdf) ///
+>     "|AndersonLM_p=" %12.6f e(idp) ///
+>     "|Sargan_p=" %12.6f e(jp) ///
+>     "|Endogeneity_p=" %12.6f e(estatp)
+IVSTAT|CraggDonaldWaldF=   12.230648|AndersonLM_p=    0.000000|Sargan_p=    0.117857|Endogeneity_p=    0.003397
+
+. 
+. estimates restore first_treat_post
+(results first_treat_post are active now)
+
+. post_est, label("S4c2_iv_first_fault")   coef(IV_fault)
+RESULT|S4c2_iv_first_fault|b=    0.052775|se=    0.022356|p=  0.018258|N=       12231|r2=         .
+
+. post_est, label("S4c2_iv_first_geology") coef(IV_geology)
+RESULT|S4c2_iv_first_geology|b=    0.053146|se=    0.026035|p=  0.041243|N=       12231|r2=         .
+
+. post_est, label("S4c2_iv_first_river")   coef(IV_river)
+RESULT|S4c2_iv_first_river|b=    0.098022|se=    0.019415|p=  0.000000|N=       12231|r2=         .
+
+. 
+. log close
+      name:  <unnamed>
+       log:  D:/论文文件夹/自然灾害与婚姻/提交_复现包/logs/02_robustness_results.log
+  log type:  text
+ closed on:  29 Aug 2026, 12:48:45
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

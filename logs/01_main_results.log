@@ -1,0 +1,1205 @@
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  D:/论文文件夹/自然灾害与婚姻/提交_复现包/logs/01_main_results.log
+  log type:  text
+ opened on:  29 Aug 2026, 12:48:40
+
+. 
+. *--------------------------------------------------------------
+. * Table 1  基准回归（Table 1）
+. *--------------------------------------------------------------
+. use "${f_base}", clear
+
+. capture drop tp_check
+
+. generate double tp_check = treat_50km * post_50km
+
+. count if tp_check != treat_post
+  0
+
+. display as result "CHECK|treat_post_mismatch=" r(N)
+CHECK|treat_post_mismatch=0
+
+. drop tp_check
+
+. count if academy != academy_50km
+  0
+
+. display as result "CHECK|academy_vs_academy50km_mismatch=" r(N)
+CHECK|academy_vs_academy50km_mismatch=0
+
+. 
+. reghdfe divorce_rate  treat_post,      absorb(year county_code) cluster(county_code)
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =     12,231
+Absorbing 2 HDFE groups                           F(   1,   2036) =      12.12
+Statistics robust to heteroskedasticity           Prob > F        =     0.0005
+                                                  R-squared       =     0.5385
+                                                  Adj R-squared   =     0.4453
+                                                  Within R-sq.    =     0.0011
+Number of clusters (county_code) =      2,037     Root MSE        =     1.4331
+
+                        (Std. err. adjusted for 2,037 clusters in county_code)
+------------------------------------------------------------------------------
+             |               Robust
+divorce_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  treat_post |   .2898231   .0832557     3.48   0.001     .1265479    .4530983
+       _cons |   2.110406   .0212104    99.50   0.000      2.06881    2.152003
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        19           1          18     |
+ county_code |      2037        2037           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. post_est, label("T1c1_divorce_nocontrols") coef(treat_post)
+RESULT|T1c1_divorce_nocontrols|b=    0.289823|se=    0.083256|p=  0.000510|N=       12231|r2=  0.538520
+
+. reghdfe divorce_rate  treat_post $cv,  absorb(year county_code) cluster(county_code)
+(MWFE estimator converged in 9 iterations)
+
+HDFE Linear regression                            Number of obs   =     12,231
+Absorbing 2 HDFE groups                           F(   5,   2036) =       6.42
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.5397
+                                                  Adj R-squared   =     0.4465
+                                                  Within R-sq.    =     0.0037
+Number of clusters (county_code) =      2,037     Root MSE        =     1.4316
+
+                          (Std. err. adjusted for 2,037 clusters in county_code)
+--------------------------------------------------------------------------------
+               |               Robust
+  divorce_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+    treat_post |   .2965628   .0834949     3.55   0.000     .1328185    .4603072
+industry_ratio |  -.0761697   .0269263    -2.83   0.005    -.1289755   -.0233638
+    log_retail |  -.1952114   .0638632    -3.06   0.002    -.3204554   -.0699674
+      log_beds |  -.1155523   .0853019    -1.35   0.176    -.2828403    .0517357
+          pm25 |   .0063135   .0041595     1.52   0.129    -.0018438    .0144708
+         _cons |   5.007607   .9508809     5.27   0.000     3.142806    6.872407
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        19           1          18     |
+ county_code |      2037        2037           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. post_est, label("T1c2_divorce_controls")   coef(treat_post)
+RESULT|T1c2_divorce_controls|b=    0.296563|se=    0.083495|p=  0.000391|N=       12231|r2=  0.539701
+
+. reghdfe marriage_rate treat_post,      absorb(year county_code) cluster(county_code)
+(dropped 192 singleton observations)
+(MWFE estimator converged in 10 iterations)
+
+HDFE Linear regression                            Number of obs   =      5,392
+Absorbing 2 HDFE groups                           F(   1,   1719) =       3.07
+Statistics robust to heteroskedasticity           Prob > F        =     0.0801
+                                                  R-squared       =     0.5798
+                                                  Adj R-squared   =     0.3798
+                                                  Within R-sq.    =     0.0009
+Number of clusters (county_code) =      1,720     Root MSE        =     6.4422
+
+                        (Std. err. adjusted for 1,720 clusters in county_code)
+------------------------------------------------------------------------------
+             |               Robust
+marriage_r~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  treat_post |   1.947835   1.112227     1.75   0.080    -.2336258    4.129296
+       _cons |    11.5919   .3170425    36.56   0.000     10.97007    12.21373
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        19           1          18     |
+ county_code |      1720        1720           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. post_est, label("T1c3_marriage_nocontrols") coef(treat_post)
+RESULT|T1c3_marriage_nocontrols|b=    1.947835|se=    1.112227|p=  0.080074|N=        5392|r2=  0.579756
+
+. reghdfe marriage_rate treat_post $cv,  absorb(year county_code) cluster(county_code)
+(dropped 192 singleton observations)
+(MWFE estimator converged in 10 iterations)
+
+HDFE Linear regression                            Number of obs   =      5,392
+Absorbing 2 HDFE groups                           F(   5,   1719) =       1.56
+Statistics robust to heteroskedasticity           Prob > F        =     0.1671
+                                                  R-squared       =     0.5805
+                                                  Adj R-squared   =     0.3803
+                                                  Within R-sq.    =     0.0028
+Number of clusters (county_code) =      1,720     Root MSE        =     6.4397
+
+                          (Std. err. adjusted for 1,720 clusters in county_code)
+--------------------------------------------------------------------------------
+               |               Robust
+ marriage_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+    treat_post |   1.750289   1.127297     1.55   0.121    -.4607288    3.961307
+industry_ratio |  -.1773834   .2184012    -0.81   0.417    -.6057436    .2509768
+    log_retail |  -.6984949   .6509488    -1.07   0.283     -1.97523    .5782402
+      log_beds |   .7855287   .6478631     1.21   0.225    -.4851543    2.056212
+          pm25 |   .0535339   .0404164     1.32   0.185    -.0257366    .1328044
+         _cons |   12.33626   9.106553     1.35   0.176    -5.524833    30.19735
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        19           1          18     |
+ county_code |      1720        1720           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. post_est, label("T1c4_marriage_controls")   coef(treat_post)
+RESULT|T1c4_marriage_controls|b=    1.750289|se=    1.127297|p=  0.120693|N=        5392|r2=  0.580534
+
+. 
+. summarize divorce_rate treat_post $cv
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+divorce_rate |     12,231    2.184242    1.924244   .0100156   9.988437
+  treat_post |     12,231    .2547625    .4357454          0          1
+industry_r~o |     12,231    1.011272    .9342861   .0003444   25.77508
+  log_retail |     12,231    11.92915    1.419934   5.308268   16.86083
+    log_beds |     12,231    6.846988    .8522628   2.995732   10.22012
+-------------+---------------------------------------------------------
+        pm25 |     12,231    47.20046    18.83301   1.451003   132.5521
+
+. 
+. *--------------------------------------------------------------
+. * Table 2  历史传统文化交互（Table 2）
+. *--------------------------------------------------------------
+. capture drop tp_lnjinshi tp_academy tp_temples
+
+. generate double tp_lnjinshi = treat_post * lnjinshi
+
+. generate double tp_academy  = treat_post * academy_50km
+
+. generate double tp_temples  = treat_post * temples
+
+. 
+. reghdfe divorce_rate tp_lnjinshi treat_post lnjinshi $cv
+(MWFE estimator converged in 1 iterations)
+
+HDFE Linear regression                            Number of obs   =     12,231
+Absorbing 1 HDFE group                            F(   7,  12223) =     129.36
+                                                  Prob > F        =     0.0000
+                                                  R-squared       =     0.0690
+                                                  Adj R-squared   =     0.0684
+                                                  Within R-sq.    =     0.0690
+                                                  Root MSE        =     1.8572
+
+--------------------------------------------------------------------------------
+  divorce_rate | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+   tp_lnjinshi |  -3.072638   .3585286    -8.57   0.000    -3.775411   -2.369865
+    treat_post |   .5188317   .0473761    10.95   0.000     .4259672    .6116963
+      lnjinshi |  -1.241484   .1969232    -6.30   0.000    -1.627485   -.8554839
+industry_ratio |    .017481   .0185174     0.94   0.345    -.0188161     .053778
+    log_retail |   .4936123   .0203197    24.29   0.000     .4537824    .5334422
+      log_beds |  -.3592338    .032815   -10.95   0.000    -.4235563   -.2949113
+          pm25 |  -.0030376    .001027    -2.96   0.003    -.0050507   -.0010245
+         _cons |  -1.098534   .1572462    -6.99   0.000    -1.406761   -.7903066
+--------------------------------------------------------------------------------
+
+. post_est, label("T2c1_x_lnjinshi") coef(tp_lnjinshi)
+RESULT|T2c1_x_lnjinshi|b=   -3.072638|se=    0.358529|p=  0.000000|N=       12231|r2=  0.068971
+
+. post_est, label("T2c1_treat_post") coef(treat_post)
+RESULT|T2c1_treat_post|b=    0.518832|se=    0.047376|p=  0.000000|N=       12231|r2=  0.068971
+
+. reghdfe divorce_rate tp_academy  treat_post academy  $cv
+(MWFE estimator converged in 1 iterations)
+
+HDFE Linear regression                            Number of obs   =     12,231
+Absorbing 1 HDFE group                            F(   7,  12223) =     116.75
+                                                  Prob > F        =     0.0000
+                                                  R-squared       =     0.0627
+                                                  Adj R-squared   =     0.0621
+                                                  Within R-sq.    =     0.0627
+                                                  Root MSE        =     1.8635
+
+--------------------------------------------------------------------------------
+  divorce_rate | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+    tp_academy |  -.0166202   .0028621    -5.81   0.000    -.0222304   -.0110101
+    treat_post |   .4665536    .049545     9.42   0.000     .3694375    .5636697
+       academy |  -.0080116   .0013845    -5.79   0.000    -.0107254   -.0052979
+industry_ratio |   .0196868   .0185876     1.06   0.290    -.0167479    .0561214
+    log_retail |   .4594882   .0200754    22.89   0.000     .4201372    .4988392
+      log_beds |  -.3390013    .032871   -10.31   0.000    -.4034337    -.274569
+          pm25 |  -.0047939   .0009956    -4.81   0.000    -.0067455   -.0028423
+         _cons |  -.7560992   .1545575    -4.89   0.000    -1.059056   -.4531421
+--------------------------------------------------------------------------------
+
+. post_est, label("T2c2_x_academy")  coef(tp_academy)
+RESULT|T2c2_x_academy|b=   -0.016620|se=    0.002862|p=  0.000000|N=       12231|r2=  0.062671
+
+. post_est, label("T2c2_treat_post") coef(treat_post)
+RESULT|T2c2_treat_post|b=    0.466554|se=    0.049545|p=  0.000000|N=       12231|r2=  0.062671
+
+. reghdfe divorce_rate tp_temples  treat_post temples  $cv
+(MWFE estimator converged in 1 iterations)
+
+HDFE Linear regression                            Number of obs   =     12,231
+Absorbing 1 HDFE group                            F(   7,  12223) =     128.37
+                                                  Prob > F        =     0.0000
+                                                  R-squared       =     0.0685
+                                                  Adj R-squared   =     0.0679
+                                                  Within R-sq.    =     0.0685
+                                                  Root MSE        =     1.8577
+
+--------------------------------------------------------------------------------
+  divorce_rate | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+    tp_temples |  -.0514533    .023192    -2.22   0.027    -.0969133   -.0059934
+    treat_post |   .4201795   .0483868     8.68   0.000     .3253336    .5150253
+       temples |  -.1520442   .0159257    -9.55   0.000    -.1832611   -.1208273
+industry_ratio |    .031145    .018466     1.69   0.092    -.0050513    .0673414
+    log_retail |   .4437406   .0199301    22.26   0.000     .4046745    .4828067
+      log_beds |  -.3108939   .0328772    -9.46   0.000    -.3753383   -.2464494
+          pm25 |  -.0011456   .0010452    -1.10   0.273    -.0031943    .0009031
+         _cons |  -.8818982   .1546606    -5.70   0.000    -1.185057   -.5787389
+--------------------------------------------------------------------------------
+
+. post_est, label("T2c3_x_temples")  coef(tp_temples)
+RESULT|T2c3_x_temples|b=   -0.051453|se=    0.023192|p=  0.026533|N=       12231|r2=  0.068482
+
+. post_est, label("T2c3_treat_post") coef(treat_post)
+RESULT|T2c3_treat_post|b=    0.420179|se=    0.048387|p=  0.000000|N=       12231|r2=  0.068482
+
+. 
+. *--------------------------------------------------------------
+. * Table 4 / S7  区域婚俗与故事发源地（Table 4 与 Table S7 / S8）
+. *--------------------------------------------------------------
+. use "${f_mech}", clear
+
+. capture drop treat_post
+
+. generate double treat_post = treat_50km * post_50km
+
+. 
+. foreach spec in pa_ears male_chauvinism 彩礼分类 {
+  2.     forvalues v = 0/1 {
+  3.         reghdfe divorce_rate treat_post $cv if `spec' == `v', ///
+>             absorb(year county_code) cluster(county_code)
+  4.         post_est, label("T4_`spec'_`v'") coef(treat_post)
+  5.     }
+  6. }
+(MWFE estimator converged in 9 iterations)
+
+HDFE Linear regression                            Number of obs   =     11,288
+Absorbing 2 HDFE groups                           F(   5,   1853) =       7.19
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.5478
+                                                  Adj R-squared   =     0.4577
+                                                  Within R-sq.    =     0.0040
+Number of clusters (county_code) =      1,854     Root MSE        =     1.3976
+
+                          (Std. err. adjusted for 1,854 clusters in county_code)
+--------------------------------------------------------------------------------
+               |               Robust
+  divorce_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+    treat_post |   .3367399   .0800105     4.21   0.000     .1798197      .49366
+industry_ratio |  -.0656387   .0260437    -2.52   0.012    -.1167169   -.0145606
+    log_retail |   -.185218   .0627717    -2.95   0.003    -.3083286   -.0621074
+      log_beds |  -.1436016   .0870491    -1.65   0.099    -.3143261     .027123
+          pm25 |   .0066654   .0040782     1.63   0.102    -.0013329    .0146637
+         _cons |   5.038589   .9546676     5.28   0.000     3.166252    6.910927
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        19           1          18     |
+ county_code |      1854        1854           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|T4_pa_ears_0|b=    0.336740|se=    0.080010|p=  0.000027|N=       11288|r2=  0.547842
+(dropped 1 singleton observations)
+(MWFE estimator converged in 9 iterations)
+
+HDFE Linear regression                            Number of obs   =        942
+Absorbing 2 HDFE groups                           F(   5,    182) =       1.46
+Statistics robust to heteroskedasticity           Prob > F        =     0.2051
+                                                  R-squared       =     0.4853
+                                                  Adj R-squared   =     0.3428
+                                                  Within R-sq.    =     0.0090
+Number of clusters (county_code) =        183     Root MSE        =     1.7953
+
+                            (Std. err. adjusted for 183 clusters in county_code)
+--------------------------------------------------------------------------------
+               |               Robust
+  divorce_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+    treat_post |   .0938295   .3155129     0.30   0.767    -.5287039     .716363
+industry_ratio |  -.2667293   .1342505    -1.99   0.048    -.5316168   -.0018419
+    log_retail |   -.482521   .3369417    -1.43   0.154    -1.147335    .1822933
+      log_beds |   .1374821   .4197149     0.33   0.744    -.6906506    .9656148
+          pm25 |  -.0108963   .0228989    -0.48   0.635    -.0560778    .0342852
+         _cons |   7.700942   4.915717     1.57   0.119    -1.998181    17.40006
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        18           1          17     |
+ county_code |       183         183           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|T4_pa_ears_1|b=    0.093830|se=    0.315513|p=  0.766510|N=         942|r2=  0.485275
+(MWFE estimator converged in 9 iterations)
+
+HDFE Linear regression                            Number of obs   =      8,964
+Absorbing 2 HDFE groups                           F(   5,   1519) =       5.23
+Statistics robust to heteroskedasticity           Prob > F        =     0.0001
+                                                  R-squared       =     0.5153
+                                                  Adj R-squared   =     0.4146
+                                                  Within R-sq.    =     0.0039
+Number of clusters (county_code) =      1,520     Root MSE        =     1.4399
+
+                          (Std. err. adjusted for 1,520 clusters in county_code)
+--------------------------------------------------------------------------------
+               |               Robust
+  divorce_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+    treat_post |   .2988115   .1078152     2.77   0.006     .0873291    .5102938
+industry_ratio |  -.1088668   .0344311    -3.16   0.002    -.1764043   -.0413293
+    log_retail |   -.197441   .0774912    -2.55   0.011    -.3494421   -.0454398
+      log_beds |  -.0629785   .1023424    -0.62   0.538    -.2637259    .1377689
+          pm25 |   .0085658   .0061105     1.40   0.161    -.0034201    .0205518
+         _cons |   4.563624   1.242156     3.67   0.000     2.127102    7.000146
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        19           1          18     |
+ county_code |      1520        1520           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|T4_male_chauvinism_0|b=    0.298811|se=    0.107815|p=  0.005648|N=        8964|r2=  0.515272
+(MWFE estimator converged in 9 iterations)
+
+HDFE Linear regression                            Number of obs   =      3,267
+Absorbing 2 HDFE groups                           F(   5,    516) =       4.14
+Statistics robust to heteroskedasticity           Prob > F        =     0.0011
+                                                  R-squared       =     0.6067
+                                                  Adj R-squared   =     0.5290
+                                                  Within R-sq.    =     0.0081
+Number of clusters (county_code) =        517     Root MSE        =     1.3944
+
+                            (Std. err. adjusted for 517 clusters in county_code)
+--------------------------------------------------------------------------------
+               |               Robust
+  divorce_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+    treat_post |   .3821637   .1217316     3.14   0.002     .1430131    .6213142
+industry_ratio |  -.0405018   .0350926    -1.15   0.249    -.1094437    .0284402
+    log_retail |  -.2535494    .116214    -2.18   0.030    -.4818601   -.0252387
+      log_beds |  -.2345467   .1614596    -1.45   0.147    -.5517457    .0826523
+          pm25 |  -.0047596   .0062145    -0.77   0.444    -.0169684    .0074492
+         _cons |   7.311307   1.529082     4.78   0.000     4.307315     10.3153
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        19           1          18     |
+ county_code |       517         517           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|T4_male_chauvinism_1|b=    0.382164|se=    0.121732|p=  0.001790|N=        3267|r2=  0.606713
+(MWFE estimator converged in 9 iterations)
+
+HDFE Linear regression                            Number of obs   =      4,990
+Absorbing 2 HDFE groups                           F(   5,    876) =       2.82
+Statistics robust to heteroskedasticity           Prob > F        =     0.0154
+                                                  R-squared       =     0.5690
+                                                  Adj R-squared   =     0.4743
+                                                  Within R-sq.    =     0.0050
+Number of clusters (county_code) =        877     Root MSE        =     1.3617
+
+                            (Std. err. adjusted for 877 clusters in county_code)
+--------------------------------------------------------------------------------
+               |               Robust
+  divorce_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+    treat_post |   .2663509   .1727923     1.54   0.124    -.0727845    .6054862
+industry_ratio |  -.0632501   .0473414    -1.34   0.182    -.1561659    .0296657
+    log_retail |  -.1596569   .1006285    -1.59   0.113     -.357158    .0378441
+      log_beds |  -.2388332   .1305363    -1.83   0.068    -.4950337    .0173673
+          pm25 |  -.0135761   .0080829    -1.68   0.093    -.0294401    .0022879
+         _cons |   6.230748   1.401137     4.45   0.000      3.48077    8.980726
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        19           1          18     |
+ county_code |       877         877           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|T4_彩礼分类_0|b=    0.266351|se=    0.172792|p=  0.123568|N=        4990|r2=  0.569033
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =      7,241
+Absorbing 2 HDFE groups                           F(   5,   1159) =       8.03
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.5279
+                                                  Adj R-squared   =     0.4358
+                                                  Within R-sq.    =     0.0058
+Number of clusters (county_code) =      1,160     Root MSE        =     1.4681
+
+                          (Std. err. adjusted for 1,160 clusters in county_code)
+--------------------------------------------------------------------------------
+               |               Robust
+  divorce_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+    treat_post |    .316558   .0892757     3.55   0.000     .1413979    .4917181
+industry_ratio |  -.0676665   .0330325    -2.05   0.041    -.1324768   -.0028562
+    log_retail |  -.2577856   .0866752    -2.97   0.003    -.4278434   -.0877278
+      log_beds |  -.0674205   .1084699    -0.62   0.534    -.2802399     .145399
+          pm25 |   .0154575   .0047543     3.25   0.001     .0061296    .0247855
+         _cons |    4.89731   1.318505     3.71   0.000     2.310386    7.484235
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        19           1          18     |
+ county_code |      1160        1160           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|T4_彩礼分类_1|b=    0.316558|se=    0.089276|p=  0.000407|N=        7241|r2=  0.527870
+
+. foreach spec in story_origin liangzhu_origin niulang_origin baishe_origin {
+  2.     forvalues v = 0/1 {
+  3.         reghdfe divorce_rate treat_post $cv if `spec' == `v', ///
+>             absorb(year county_code) cluster(county_code)
+  4.         post_est, label("S7_`spec'_`v'") coef(treat_post)
+  5.     }
+  6. }
+(MWFE estimator converged in 9 iterations)
+
+HDFE Linear regression                            Number of obs   =     11,741
+Absorbing 2 HDFE groups                           F(   5,   1968) =       6.76
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.5421
+                                                  Adj R-squared   =     0.4485
+                                                  Within R-sq.    =     0.0041
+Number of clusters (county_code) =      1,969     Root MSE        =     1.4292
+
+                          (Std. err. adjusted for 1,969 clusters in county_code)
+--------------------------------------------------------------------------------
+               |               Robust
+  divorce_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+    treat_post |   .3202839   .0843241     3.80   0.000     .1549099    .4856579
+industry_ratio |  -.0742676   .0270321    -2.75   0.006    -.1272822   -.0212529
+    log_retail |  -.1984348   .0645141    -3.08   0.002    -.3249581   -.0719116
+      log_beds |  -.1232864   .0870841    -1.42   0.157    -.2940731    .0475004
+          pm25 |   .0071069   .0043365     1.64   0.101    -.0013976    .0156114
+         _cons |   5.042411   .9627341     5.24   0.000     3.154325    6.930496
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        19           1          18     |
+ county_code |      1969        1969           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|S7_story_origin_0|b=    0.320284|se=    0.084324|p=  0.000150|N=       11741|r2=  0.542056
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =        490
+Absorbing 2 HDFE groups                           F(   5,     67) =       0.57
+Statistics robust to heteroskedasticity           Prob > F        =     0.7208
+                                                  R-squared       =     0.5455
+                                                  Adj R-squared   =     0.4429
+                                                  Within R-sq.    =     0.0096
+Number of clusters (county_code) =         68     Root MSE        =     1.4308
+
+                             (Std. err. adjusted for 68 clusters in county_code)
+--------------------------------------------------------------------------------
+               |               Robust
+  divorce_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+    treat_post |  -.9590608   .6788117    -1.41   0.162    -2.313975     .395853
+industry_ratio |  -.1755267   .7834498    -0.22   0.823    -1.739299    1.388246
+    log_retail |  -.3801247   .5600867    -0.68   0.500    -1.498062    .7378129
+      log_beds |   .1941897   .5055903     0.38   0.702    -.8149727    1.203352
+          pm25 |  -.0079352   .0128873    -0.62   0.540    -.0336584     .017788
+         _cons |   6.527831   7.800758     0.84   0.406    -9.042547    22.09821
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        19           1          18     |
+ county_code |        68          68           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|S7_story_origin_1|b=   -0.959061|se=    0.678812|p=  0.162328|N=         490|r2=  0.545472
+(MWFE estimator converged in 9 iterations)
+
+HDFE Linear regression                            Number of obs   =     12,041
+Absorbing 2 HDFE groups                           F(   5,   2012) =       6.46
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.5437
+                                                  Adj R-squared   =     0.4509
+                                                  Within R-sq.    =     0.0039
+Number of clusters (county_code) =      2,013     Root MSE        =     1.4245
+
+                          (Std. err. adjusted for 2,013 clusters in county_code)
+--------------------------------------------------------------------------------
+               |               Robust
+  divorce_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+    treat_post |   .2975134   .0836332     3.56   0.000     .1334967    .4615301
+industry_ratio |   -.071946   .0267973    -2.68   0.007    -.1244994   -.0193926
+    log_retail |  -.2008797   .0641937    -3.13   0.002    -.3267728   -.0749865
+      log_beds |  -.1273839   .0863061    -1.48   0.140    -.2966426    .0418749
+          pm25 |   .0070622   .0042051     1.68   0.093    -.0011846     .015309
+         _cons |   5.107927   .9582817     5.33   0.000     3.228598    6.987255
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        19           1          18     |
+ county_code |      2013        2013           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|S7_liangzhu_origin_0|b=    0.297513|se=    0.083633|p=  0.000383|N=       12041|r2=  0.543693
+(dropped 6 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+HDFE Linear regression                            Number of obs   =        184
+Absorbing 2 HDFE groups                           F(   5,     23) =       4.26
+Statistics robust to heteroskedasticity           Prob > F        =     0.0069
+                                                  R-squared       =     0.5235
+                                                  Adj R-squared   =     0.3903
+                                                  Within R-sq.    =     0.0512
+Number of clusters (county_code) =         24     Root MSE        =     1.6006
+
+                             (Std. err. adjusted for 24 clusters in county_code)
+--------------------------------------------------------------------------------
+               |               Robust
+  divorce_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+    treat_post |   -.140333   .4253231    -0.33   0.744    -1.020181    .7395149
+industry_ratio |  -1.190829   .9896211    -1.20   0.241    -3.238017    .8563577
+    log_retail |  -.1010978   .6168303    -0.16   0.871    -1.377109    1.174913
+      log_beds |   1.073325   .6822771     1.57   0.129    -.3380723    2.484723
+          pm25 |  -.0834134   .0223175    -3.74   0.001    -.1295807   -.0372462
+         _cons |   .7837381   8.184775     0.10   0.925    -16.14776    17.71523
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        13           1          12     |
+ county_code |        24          24           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|S7_liangzhu_origin_1|b=   -0.140333|se=    0.425323|p=  0.744428|N=         184|r2=  0.523542
+(MWFE estimator converged in 9 iterations)
+
+HDFE Linear regression                            Number of obs   =     12,040
+Absorbing 2 HDFE groups                           F(   5,   2004) =       6.20
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.5382
+                                                  Adj R-squared   =     0.4447
+                                                  Within R-sq.    =     0.0036
+Number of clusters (county_code) =      2,005     Root MSE        =     1.4395
+
+                          (Std. err. adjusted for 2,005 clusters in county_code)
+--------------------------------------------------------------------------------
+               |               Robust
+  divorce_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+    treat_post |   .2963951   .0848226     3.49   0.000     .1300454    .4627449
+industry_ratio |  -.0747323   .0267779    -2.79   0.005    -.1272478   -.0222168
+    log_retail |   -.195666   .0644351    -3.04   0.002    -.3220329   -.0692992
+      log_beds |  -.1103413    .086028    -1.28   0.200    -.2790549    .0583723
+          pm25 |   .0061034   .0042703     1.43   0.153    -.0022714    .0144782
+         _cons |   4.995955   .9614526     5.20   0.000     3.110403    6.881506
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        19           1          18     |
+ county_code |      2005        2005           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|S7_niulang_origin_0|b=    0.296395|se=    0.084823|p=  0.000486|N=       12040|r2=  0.538207
+(dropped 3 singleton observations)
+(MWFE estimator converged in 6 iterations)
+
+HDFE Linear regression                            Number of obs   =        188
+Absorbing 2 HDFE groups                           F(   5,     31) =       3.69
+Statistics robust to heteroskedasticity           Prob > F        =     0.0098
+                                                  R-squared       =     0.7211
+                                                  Adj R-squared   =     0.6379
+                                                  Within R-sq.    =     0.1080
+Number of clusters (county_code) =         32     Root MSE        =     0.6836
+
+                             (Std. err. adjusted for 32 clusters in county_code)
+--------------------------------------------------------------------------------
+               |               Robust
+  divorce_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+    treat_post |   .5882908   .3445857     1.71   0.098    -.1144964    1.291078
+industry_ratio |  -1.023217   .5856967    -1.75   0.091    -2.217754     .171319
+    log_retail |   1.085883   .4594478     2.36   0.025     .1488333    2.022933
+      log_beds |  -.3681996   .4128038    -0.89   0.379    -1.210118    .4737192
+          pm25 |   .0045744   .0155738     0.29   0.771    -.0271887    .0363374
+         _cons |   -8.92204   5.416737    -1.65   0.110    -19.96955    2.125468
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |         8           1           7     |
+ county_code |        32          32           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|S7_niulang_origin_1|b=    0.588291|se=    0.344586|p=  0.097776|N=         188|r2=  0.721147
+(MWFE estimator converged in 9 iterations)
+
+HDFE Linear regression                            Number of obs   =     12,122
+Absorbing 2 HDFE groups                           F(   5,   2024) =       6.98
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.5396
+                                                  Adj R-squared   =     0.4460
+                                                  Within R-sq.    =     0.0040
+Number of clusters (county_code) =      2,025     Root MSE        =     1.4283
+
+                          (Std. err. adjusted for 2,025 clusters in county_code)
+--------------------------------------------------------------------------------
+               |               Robust
+  divorce_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+    treat_post |   .3197218   .0827637     3.86   0.000     .1574109    .4820327
+industry_ratio |  -.0800555   .0273159    -2.93   0.003    -.1336257   -.0264854
+    log_retail |  -.1919182   .0636049    -3.02   0.003    -.3166561   -.0671804
+      log_beds |   -.116348    .085276    -1.36   0.173    -.2835859    .0508898
+          pm25 |   .0065296   .0041763     1.56   0.118    -.0016608      .01472
+         _cons |   4.948759   .9441597     5.24   0.000     3.097132    6.800385
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        19           1          18     |
+ county_code |      2025        2025           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|S7_baishe_origin_0|b=    0.319722|se=    0.082764|p=  0.000115|N=       12122|r2=  0.539564
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =        109
+Absorbing 2 HDFE groups                           F(   5,     11) =      17.56
+Statistics robust to heteroskedasticity           Prob > F        =     0.0001
+                                                  R-squared       =     0.7039
+                                                  Adj R-squared   =     0.5679
+                                                  Within R-sq.    =     0.1852
+Number of clusters (county_code) =         12     Root MSE        =     1.4393
+
+                             (Std. err. adjusted for 12 clusters in county_code)
+--------------------------------------------------------------------------------
+               |               Robust
+  divorce_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+    treat_post |  -5.085792   1.166505    -4.36   0.001    -7.653252   -2.518333
+industry_ratio |   .3342241   1.227609     0.27   0.790    -2.367726    3.036174
+    log_retail |   5.649016    4.41269     1.28   0.227    -4.063249    15.36128
+      log_beds |   1.385741   2.286671     0.61   0.557    -3.647187    6.418669
+          pm25 |   .0004426   .0735212     0.01   0.995    -.1613764    .1622616
+         _cons |  -81.44813   53.79893    -1.51   0.158    -199.8588    36.96252
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        19           1          18     |
+ county_code |        12          12           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|S7_baishe_origin_1|b=   -5.085792|se=    1.166505|p=  0.001137|N=         109|r2=  0.703919
+
+. 
+. *--------------------------------------------------------------
+. * S9  裁判文书离婚案件（Table S9）
+. *--------------------------------------------------------------
+. replace 离婚案件数 = 0 if missing(离婚案件数)
+(0 real changes made)
+
+. capture drop divorce_proceedings
+
+. generate double divorce_proceedings = ln(离婚案件数/population（人） + 1)
+
+. reghdfe divorce_proceedings treat_post $cv, absorb(year county_code) cluster(county_code)
+(MWFE estimator converged in 9 iterations)
+
+HDFE Linear regression                            Number of obs   =     12,231
+Absorbing 2 HDFE groups                           F(   5,   2036) =       1.77
+Statistics robust to heteroskedasticity           Prob > F        =     0.1161
+                                                  R-squared       =     0.1499
+                                                  Adj R-squared   =    -0.0221
+                                                  Within R-sq.    =     0.0002
+Number of clusters (county_code) =      2,037     Root MSE        =     0.0015
+
+                          (Std. err. adjusted for 2,037 clusters in county_code)
+--------------------------------------------------------------------------------
+               |               Robust
+divorce_proc~s | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+    treat_post |   -.000088   .0000505    -1.74   0.081    -.0001869    .0000109
+industry_ratio |   1.23e-06   7.26e-06     0.17   0.865     -.000013    .0000155
+    log_retail |  -.0000372   .0000165    -2.25   0.024    -.0000696   -4.84e-06
+      log_beds |   .0000163   .0000339     0.48   0.631    -.0000501    .0000827
+          pm25 |  -8.09e-09   3.73e-06    -0.00   0.998    -7.32e-06    7.31e-06
+         _cons |   .0004301   .0003735     1.15   0.250    -.0003024    .0011627
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        19           1          18     |
+ county_code |      2037        2037           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. post_est, label("S9_divorce_proceedings") coef(treat_post)
+RESULT|S9_divorce_proceedings|b=   -0.000088|se=    0.000050|p=  0.081243|N=       12231|r2=  0.149940
+
+. 
+. *--------------------------------------------------------------
+. * S13  灾种与严重程度（Table S13）
+. *--------------------------------------------------------------
+. capture drop tp_geo tp_cli tp_met tp_hyd damage affected
+
+. generate double tp_geo = treat_50km_地质类 * post_50km_地质类
+
+. generate double tp_cli = treat_50km_气候类 * post_50km_气候类
+
+. generate double tp_met = treat_50km_气象类 * post_50km_气象类
+
+. generate double tp_hyd = treat_50km_水文类 * post_50km_水文类
+
+. generate double damage   = ln(total_damage_50km + 1)
+
+. generate double affected = ln(total_affected_50km/1000 + 1)
+
+. 
+. foreach h in geo cli met hyd {
+  2.     reghdfe divorce_rate tp_`h' $cv, absorb(year county_code) cluster(county_code)
+  3.     post_est, label("S13_hazard_`h'") coef(tp_`h')
+  4. }
+(MWFE estimator converged in 9 iterations)
+
+HDFE Linear regression                            Number of obs   =     12,231
+Absorbing 2 HDFE groups                           F(   5,   2036) =       4.79
+Statistics robust to heteroskedasticity           Prob > F        =     0.0002
+                                                  R-squared       =     0.5395
+                                                  Adj R-squared   =     0.4463
+                                                  Within R-sq.    =     0.0032
+Number of clusters (county_code) =      2,037     Root MSE        =     1.4319
+
+                          (Std. err. adjusted for 2,037 clusters in county_code)
+--------------------------------------------------------------------------------
+               |               Robust
+  divorce_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+        tp_geo |    .360737   .1391412     2.59   0.010      .087863     .633611
+industry_ratio |  -.0760632   .0270239    -2.81   0.005    -.1290606   -.0230658
+    log_retail |  -.1871846   .0640861    -2.92   0.004    -.3128657   -.0615036
+      log_beds |  -.1087255    .085369    -1.27   0.203    -.2761452    .0586941
+          pm25 |   .0068999   .0041495     1.66   0.097    -.0012378    .0150377
+         _cons |   4.888635   .9537121     5.13   0.000     3.018282    6.758988
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        19           1          18     |
+ county_code |      2037        2037           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|S13_hazard_geo|b=    0.360737|se=    0.139141|p=  0.009594|N=       12231|r2=  0.539479
+(MWFE estimator converged in 9 iterations)
+
+HDFE Linear regression                            Number of obs   =     12,231
+Absorbing 2 HDFE groups                           F(   5,   2036) =       4.65
+Statistics robust to heteroskedasticity           Prob > F        =     0.0003
+                                                  R-squared       =     0.5393
+                                                  Adj R-squared   =     0.4460
+                                                  Within R-sq.    =     0.0028
+Number of clusters (county_code) =      2,037     Root MSE        =     1.4322
+
+                          (Std. err. adjusted for 2,037 clusters in county_code)
+--------------------------------------------------------------------------------
+               |               Robust
+  divorce_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+        tp_cli |   .2203968   .1027252     2.15   0.032     .0189394    .4218542
+industry_ratio |  -.0761773   .0269304    -2.83   0.005    -.1289914   -.0233632
+    log_retail |  -.1891633    .063975    -2.96   0.003    -.3146265      -.0637
+      log_beds |  -.1142116   .0845802    -1.35   0.177    -.2800845    .0516612
+          pm25 |   .0072016   .0041422     1.74   0.082    -.0009218     .015325
+         _cons |   4.939704   .9502874     5.20   0.000     3.076067    6.803341
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        19           1          18     |
+ county_code |      2037        2037           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|S13_hazard_cli|b=    0.220397|se=    0.102725|p=  0.032031|N=       12231|r2=  0.539285
+(MWFE estimator converged in 9 iterations)
+
+HDFE Linear regression                            Number of obs   =     12,231
+Absorbing 2 HDFE groups                           F(   5,   2036) =       4.23
+Statistics robust to heteroskedasticity           Prob > F        =     0.0008
+                                                  R-squared       =     0.5393
+                                                  Adj R-squared   =     0.4460
+                                                  Within R-sq.    =     0.0028
+Number of clusters (county_code) =      2,037     Root MSE        =     1.4322
+
+                          (Std. err. adjusted for 2,037 clusters in county_code)
+--------------------------------------------------------------------------------
+               |               Robust
+  divorce_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+        tp_met |   .2217493   .1414988     1.57   0.117    -.0557483    .4992469
+industry_ratio |  -.0761155   .0269579    -2.82   0.005    -.1289835   -.0232475
+    log_retail |  -.1900938   .0637509    -2.98   0.003    -.3151175     -.06507
+      log_beds |   -.114178   .0849102    -1.34   0.179     -.280698     .052342
+          pm25 |   .0067762   .0041625     1.63   0.104    -.0013871    .0149395
+         _cons |   4.961964    .951874     5.21   0.000     3.095216    6.828713
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        19           1          18     |
+ county_code |      2037        2037           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|S13_hazard_met|b=    0.221749|se=    0.141499|p=  0.117236|N=       12231|r2=  0.539273
+(MWFE estimator converged in 9 iterations)
+
+HDFE Linear regression                            Number of obs   =     12,231
+Absorbing 2 HDFE groups                           F(   5,   2036) =       9.16
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.5403
+                                                  Adj R-squared   =     0.4472
+                                                  Within R-sq.    =     0.0049
+Number of clusters (county_code) =      2,037     Root MSE        =     1.4307
+
+                          (Std. err. adjusted for 2,037 clusters in county_code)
+--------------------------------------------------------------------------------
+               |               Robust
+  divorce_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+        tp_hyd |   .4035705   .0776143     5.20   0.000     .2513587    .5557822
+industry_ratio |  -.0771722   .0269444    -2.86   0.004    -.1300137   -.0243307
+    log_retail |  -.1934011   .0629985    -3.07   0.002    -.3169493   -.0698528
+      log_beds |  -.1188554   .0847614    -1.40   0.161    -.2850836    .0473728
+          pm25 |   .0065632   .0041546     1.58   0.114    -.0015844    .0147108
+         _cons |   4.988116   .9436121     5.29   0.000      3.13757    6.838661
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        19           1          18     |
+ county_code |      2037        2037           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|S13_hazard_hyd|b=    0.403570|se=    0.077614|p=  0.000000|N=       12231|r2=  0.540265
+
+. reghdfe divorce_rate damage   $cv, absorb(year county_code) cluster(county_code)
+(MWFE estimator converged in 9 iterations)
+
+HDFE Linear regression                            Number of obs   =     12,231
+Absorbing 2 HDFE groups                           F(   5,   2036) =       4.80
+Statistics robust to heteroskedasticity           Prob > F        =     0.0002
+                                                  R-squared       =     0.5394
+                                                  Adj R-squared   =     0.4461
+                                                  Within R-sq.    =     0.0029
+Number of clusters (county_code) =      2,037     Root MSE        =     1.4321
+
+                          (Std. err. adjusted for 2,037 clusters in county_code)
+--------------------------------------------------------------------------------
+               |               Robust
+  divorce_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+        damage |   .0136219   .0069633     1.96   0.051     -.000034    .0272778
+industry_ratio |  -.0768409    .027152    -2.83   0.005    -.1300895   -.0235923
+    log_retail |  -.1912034   .0639429    -2.99   0.003    -.3166038   -.0658031
+      log_beds |  -.1126229    .084909    -1.33   0.185    -.2791406    .0538947
+          pm25 |   .0068742   .0041323     1.66   0.096    -.0012297    .0149781
+         _cons |   4.969585   .9507751     5.23   0.000     3.104992    6.834179
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        19           1          18     |
+ county_code |      2037        2037           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. post_est, label("S13_severity_damage")   coef(damage)
+RESULT|S13_severity_damage|b=    0.013622|se=    0.006963|p=  0.050573|N=       12231|r2=  0.539353
+
+. reghdfe divorce_rate affected $cv, absorb(year county_code) cluster(county_code)
+(MWFE estimator converged in 9 iterations)
+
+HDFE Linear regression                            Number of obs   =     12,231
+Absorbing 2 HDFE groups                           F(   5,   2036) =       4.44
+Statistics robust to heteroskedasticity           Prob > F        =     0.0005
+                                                  R-squared       =     0.5393
+                                                  Adj R-squared   =     0.4460
+                                                  Within R-sq.    =     0.0028
+Number of clusters (county_code) =      2,037     Root MSE        =     1.4322
+
+                          (Std. err. adjusted for 2,037 clusters in county_code)
+--------------------------------------------------------------------------------
+               |               Robust
+  divorce_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+      affected |   .0164037   .0098922     1.66   0.097    -.0029963    .0358037
+industry_ratio |  -.0773181   .0271668    -2.85   0.004    -.1305958   -.0240405
+    log_retail |   -.188567   .0640002    -2.95   0.003    -.3140797   -.0630544
+      log_beds |  -.1122191   .0850365    -1.32   0.187    -.2789866    .0545485
+          pm25 |   .0069439   .0041364     1.68   0.093    -.0011681    .0150558
+         _cons |   4.937515   .9510376     5.19   0.000     3.072407    6.802624
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        19           1          18     |
+ county_code |      2037        2037           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. post_est, label("S13_severity_affected") coef(affected)
+RESULT|S13_severity_affected|b=    0.016404|se=    0.009892|p=  0.097423|N=       12231|r2=  0.539270
+
+. 
+. *--------------------------------------------------------------
+. * Table 3  优酷评论（Table 3 与 Table S6）
+. *--------------------------------------------------------------
+. use "${f_drama}", clear
+
+. capture drop treat_post
+
+. generate double treat_post = treat_50km * post_50km
+
+. forvalues k = 0/3 {
+  2.     if `k' == 0  local rv "review"
+  3.     else         local rv "review`k'"
+  4.     capture drop tp_x
+  5.     generate double tp_x = treat_post * `rv'
+  6.     reghdfe divorce_rate tp_x treat_post `rv' $cv, ///
+>         absorb(year county_code) cluster(county_code)
+  7.     post_est, label("T3_youku_`rv'") coef(tp_x)
+  8.     drop tp_x
+  9. }
+(dropped 5 singleton observations)
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =      7,222
+Absorbing 2 HDFE groups                           F(   7,   1890) =       3.34
+Statistics robust to heteroskedasticity           Prob > F        =     0.0015
+                                                  R-squared       =     0.5686
+                                                  Adj R-squared   =     0.4138
+                                                  Within R-sq.    =     0.0055
+Number of clusters (county_code) =      1,891     Root MSE        =     1.4742
+
+                          (Std. err. adjusted for 1,891 clusters in county_code)
+--------------------------------------------------------------------------------
+               |               Robust
+  divorce_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+          tp_x |  -.5084351   .1559857    -3.26   0.001    -.8143574   -.2025128
+    treat_post |   .2069586   .2847866     0.73   0.467    -.3515707    .7654878
+        review |    .398574    .117758     3.38   0.001     .1676246    .6295234
+industry_ratio |  -.0468362   .0607927    -0.77   0.441    -.1660641    .0723916
+    log_retail |   .2484343    .098572     2.52   0.012     .0551129    .4417557
+      log_beds |    .024633   .1195927     0.21   0.837    -.2099145    .2591806
+          pm25 |   .0190525   .0087976     2.17   0.030     .0017984    .0363066
+         _cons |  -1.901586   1.628603    -1.17   0.243    -5.095635    1.292462
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        10           1           9     |
+ county_code |      1891        1891           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|T3_youku_review|b=   -0.508435|se=    0.155986|p=  0.001136|N=        7222|r2=  0.568555
+(dropped 5 singleton observations)
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =      7,222
+Absorbing 2 HDFE groups                           F(   7,   1890) =       3.46
+Statistics robust to heteroskedasticity           Prob > F        =     0.0011
+                                                  R-squared       =     0.5689
+                                                  Adj R-squared   =     0.4144
+                                                  Within R-sq.    =     0.0064
+Number of clusters (county_code) =      1,891     Root MSE        =     1.4736
+
+                          (Std. err. adjusted for 1,891 clusters in county_code)
+--------------------------------------------------------------------------------
+               |               Robust
+  divorce_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+          tp_x |  -.2295237   .0949173    -2.42   0.016    -.4156774   -.0433701
+    treat_post |   .0167081   .2797203     0.06   0.952     -.531885    .5653012
+       review1 |   .2611763   .0679334     3.84   0.000      .127944    .3944086
+industry_ratio |  -.0469028   .0591134    -0.79   0.428    -.1628372    .0690317
+    log_retail |   .2540365   .0982337     2.59   0.010     .0613787    .4466944
+      log_beds |   .0301743    .119307     0.25   0.800    -.2038129    .2641616
+          pm25 |   .0187436   .0087348     2.15   0.032     .0016127    .0358745
+         _cons |  -1.847656   1.630139    -1.13   0.257    -5.044717    1.349404
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        10           1           9     |
+ county_code |      1891        1891           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|T3_youku_review1|b=   -0.229524|se=    0.094917|p=  0.015694|N=        7222|r2=  0.568935
+(dropped 5 singleton observations)
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =      7,222
+Absorbing 2 HDFE groups                           F(   7,   1890) =       2.15
+Statistics robust to heteroskedasticity           Prob > F        =     0.0363
+                                                  R-squared       =     0.5677
+                                                  Adj R-squared   =     0.4126
+                                                  Within R-sq.    =     0.0035
+Number of clusters (county_code) =      1,891     Root MSE        =     1.4757
+
+                          (Std. err. adjusted for 1,891 clusters in county_code)
+--------------------------------------------------------------------------------
+               |               Robust
+  divorce_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+          tp_x |  -.1799079   .0981949    -1.83   0.067    -.3724897    .0126739
+    treat_post |   .0302408   .2760705     0.11   0.913    -.5111943    .5716758
+       review2 |   .0171687    .064369     0.27   0.790    -.1090731    .1434105
+industry_ratio |  -.0456804   .0594339    -0.77   0.442    -.1622434    .0708827
+    log_retail |   .2414761   .0982161     2.46   0.014     .0488528    .4340994
+      log_beds |   .0219861   .1183063     0.19   0.853    -.2100385    .2540107
+          pm25 |   .0191028   .0087724     2.18   0.030     .0018982    .0363075
+         _cons |  -1.581563   1.624561    -0.97   0.330    -4.767685    1.604558
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        10           1           9     |
+ county_code |      1891        1891           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|T3_youku_review2|b=   -0.179908|se=    0.098195|p=  0.067086|N=        7222|r2=  0.567665
+(dropped 5 singleton observations)
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =      7,222
+Absorbing 2 HDFE groups                           F(   7,   1890) =       4.76
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.5685
+                                                  Adj R-squared   =     0.4138
+                                                  Within R-sq.    =     0.0055
+Number of clusters (county_code) =      1,891     Root MSE        =     1.4742
+
+                          (Std. err. adjusted for 1,891 clusters in county_code)
+--------------------------------------------------------------------------------
+               |               Robust
+  divorce_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+          tp_x |  -.2268989    .086796    -2.61   0.009     -.397125   -.0566729
+    treat_post |    .013242     .28081     0.05   0.962    -.5374881    .5639721
+       review3 |  -.1110116   .0649964    -1.71   0.088    -.2384838    .0164607
+industry_ratio |   -.042342   .0578267    -0.73   0.464    -.1557528    .0710689
+    log_retail |   .2326042   .0986241     2.36   0.018     .0391806    .4260279
+      log_beds |   .0367376   .1194882     0.31   0.759    -.1976051    .2710803
+          pm25 |   .0182658   .0088046     2.07   0.038     .0009979    .0355336
+         _cons |  -1.472281    1.63607    -0.90   0.368    -4.680974    1.736413
+--------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+        year |        10           1           9     |
+ county_code |      1891        1891           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+RESULT|T3_youku_review3|b=   -0.226899|se=    0.086796|p=  0.009016|N=        7222|r2=  0.568544
+
+. 
+. display as result "MAIN_AUDIT_COMPLETE"
+MAIN_AUDIT_COMPLETE
+
+. log close
+      name:  <unnamed>
+       log:  D:/论文文件夹/自然灾害与婚姻/提交_复现包/logs/01_main_results.log
+  log type:  text
+ closed on:  29 Aug 2026, 12:48:43
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
